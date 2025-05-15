@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7632113769036218154}
+  - component: {fileID: 916653296409974560}
   - component: {fileID: 7632113769036218155}
   - component: {fileID: 7632113769036218132}
   - component: {fileID: 7632113769036218133}
-  - component: {fileID: 5978401424654587627}
   m_Layer: 0
   m_Name: Cell
   m_TagString: Untagged
@@ -35,6 +35,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &916653296409974560
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7632113769036218134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0ec20de0f02f1b45a5c41e1c770f88f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  evolutionManager: {fileID: 0}
+  genome:
+    fitness: 0
 --- !u!212 &7632113769036218155
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -123,20 +138,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &5978401424654587627
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7632113769036218134}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0ec20de0f02f1b45a5c41e1c770f88f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  manager: {fileID: 0}
-  memory: []
 --- !u!1 &7632113769184785781
 GameObject:
   m_ObjectHideFlags: 0

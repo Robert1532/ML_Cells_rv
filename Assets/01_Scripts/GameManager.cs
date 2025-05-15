@@ -20,6 +20,10 @@ public class GameManager : MonoBehaviour
     {
         evolutionManager.gameManager = this;
         timeLeft = roundDuration;
+
+        // Inicializa población aquí para que esté lista antes de crear células
+        evolutionManager.InitializePopulation();
+
         SpawnCells();
     }
 
@@ -44,7 +48,9 @@ public class GameManager : MonoBehaviour
         score = 0;
         scoreText.text = "Puntaje: " + score;
 
-        for (int i = 0; i < maxCells; i++)
+        int spawnCount = Mathf.Min(maxCells, evolutionManager.population.Count);
+
+        for (int i = 0; i < spawnCount; i++)
         {
             Vector2 pos = new Vector2(Random.Range(-7f, 7f), Random.Range(-3f, 3f));
             GameObject cellObj = Instantiate(cellPrefab, pos, Quaternion.identity);

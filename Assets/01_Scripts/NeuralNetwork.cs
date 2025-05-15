@@ -10,6 +10,12 @@ public class NeuralNetwork
     public NeuralNetwork()
     {
         weights = new float[inputCount, outputCount];
+        // No inicializar aquí para evitar errores en serialización
+    }
+
+    // Este método debe llamarse explicitamente para inicializar pesos aleatorios
+    public void InitializeRandom()
+    {
         Randomize();
     }
 

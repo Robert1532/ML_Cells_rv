@@ -28,14 +28,14 @@ public class CellController : MonoBehaviour
         float b = Mathf.Clamp01((outputs[2] + 1f) / 2f);
         sr.color = new Color(r, g, b);
 
-        // Size (0.3 a 1.5)
+        // Tamaño (0.3 a 1.5)
         float size = Mathf.Lerp(0.3f, 1.5f, (outputs[3] + 1f) / 2f);
         transform.localScale = Vector3.one * size;
 
-        // Máxima velocidad (0 a 3)
+        // Velocidad máxima (0 a 3)
         maxSpeed = Mathf.Lerp(0f, 3f, (outputs[4] + 1f) / 2f);
 
-        speed = 0f; // Arrancan quietos
+        speed = 0f; // Empiezan quietas
         velocity = Vector2.zero;
     }
 
@@ -62,7 +62,16 @@ public class CellController : MonoBehaviour
 
         clicked = true;
         genome.fitness -= 1f; // Penaliza ser clickeada
-        evolutionManager.gameManager.AddScore();
+
+        if (evolutionManager != null && evolutionManager.gameManager != null)
+        {
+            evolutionManager.gameManager.AddScore();
+        }
+        else
+        {
+            Debug.LogError("evolutionManager o gameManager es null en OnMouseDown");
+        }
+
         Destroy(gameObject);
     }
 
