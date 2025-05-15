@@ -2,73 +2,75 @@ using UnityEngine;
 
 public class CellController : MonoBehaviour
 {
-    public GameManager manager;
-    public System.Collections.Generic.List<CellData> memory;
+    public EvolutionManager evolutionManager;
+    public Genome genome;
 
     private SpriteRenderer sr;
-    private Color color;
-    private float size;
-
     private bool clicked = false;
+
+    private float speed = 0f;
+    private float maxSpeed = 0f;
+    private Vector2 velocity;
 
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
+        ApplyGenome();
+    }
 
-        // Machine learning básico: intentar colores que sobrevivieron
-        CellData best = GetBestMemory();
-        if (best != null)
-        {
-            color = new Color(best.r, best.g, best.b);
-            size = best.size;
-        }
-        else
-        {
-            color = new Color(Random.value, Random.value, Random.value);
-            size = Random.Range(0.5f, 1.5f);
-        }
+    public void ApplyGenome()
+    {
+        float[] outputs = genome.net.FeedForward(new float[] { 1f });
 
-        sr.color = color;
+        // Color
+        float r = Mathf.Clamp01((outputs[0] + 1f) / 2f);
+        float g = Mathf.Clamp01((outputs[1] + 1f) / 2f);
+        float b = Mathf.Clamp01((outputs[2] + 1f) / 2f);
+        sr.color = new Color(r, g, b);
+
+        // Size (0.3 a 1.5)
+        float size = Mathf.Lerp(0.3f, 1.5f, (outputs[3] + 1f) / 2f);
         transform.localScale = Vector3.one * size;
+
+        // Máxima velocidad (0 a 3)
+        maxSpeed = Mathf.Lerp(0f, 3f, (outputs[4] + 1f) / 2f);
+
+        speed = 0f; // Arrancan quietos
+        velocity = Vector2.zero;
+    }
+
+    void Update()
+    {
+        if (clicked) return;
+
+        // Huir del mouse
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 dirAwayFromMouse = ((Vector2)transform.position - (Vector2)mouseWorldPos).normalized;
+
+        // Acelerar gradualmente hasta maxSpeed
+        speed = Mathf.MoveTowards(speed, maxSpeed, 1f * Time.deltaTime);
+
+        // Cambiar dirección suavemente hacia huida
+        velocity = Vector2.Lerp(velocity, dirAwayFromMouse * speed, 0.1f);
+
+        transform.Translate(velocity * Time.deltaTime);
     }
 
     void OnMouseDown()
     {
+        if (clicked) return;
+
         clicked = true;
-        manager.AddScore();
-        ReportSurvival(true); // Eliminado
+        genome.fitness -= 1f; // Penaliza ser clickeada
+        evolutionManager.gameManager.AddScore();
         Destroy(gameObject);
     }
 
-    public void ReportSurvival(bool eliminated)
+    public void Survived()
     {
-        manager.RegisterMemory(new CellData
+        if (!clicked)
         {
-            r = color.r,
-            g = color.g,
-            b = color.b,
-            size = size,
-            survived = !eliminated
-        });
-    }
-
-    CellData GetBestMemory()
-    {
-        CellData best = null;
-        float highestScore = -1f;
-
-        foreach (var data in memory)
-        {
-            if (data.survived)
-            {
-                float score = 1f - Mathf.Abs(data.r - Random.value) - Mathf.Abs(data.g - Random.value) - Mathf.Abs(data.b - Random.value);
-                if (score > highestScore)
-                {
-                    best = data;
-                    highestScore = score;
-                }
-            }
+            genome.fitness += 1f;
         }
-        return best;
     }
 }

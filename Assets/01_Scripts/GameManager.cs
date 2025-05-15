@@ -7,19 +7,20 @@ public class GameManager : MonoBehaviour
     public GameObject cellPrefab;
     public Text timerText;
     public Text scoreText;
-    public int maxCells = 10;
+    public EvolutionManager evolutionManager;
 
-    private float roundTime = 10f;
+    public int maxCells = 20;
+    public float roundDuration = 10f;
+
     private float timeLeft;
     private int score = 0;
-
     private List<GameObject> activeCells = new List<GameObject>();
-    private List<CellData> memory = new List<CellData>();
 
     void Start()
     {
-        timeLeft = roundTime;
-        StartRound();
+        evolutionManager.gameManager = this;
+        timeLeft = roundDuration;
+        SpawnCells();
     }
 
     void Update()
@@ -30,55 +31,59 @@ public class GameManager : MonoBehaviour
         if (timeLeft <= 0)
         {
             EndRound();
-            StartRound();
+            evolutionManager.Evolve();
+            timeLeft = roundDuration;
+            SpawnCells();
         }
     }
 
-    void StartRound()
+    void SpawnCells()
     {
-        timeLeft = roundTime;
         ClearCells();
+
+        score = 0;
+        scoreText.text = "Puntaje: " + score;
+
         for (int i = 0; i < maxCells; i++)
         {
-            Vector2 spawnPos = new Vector2(Random.Range(-7f, 7f), Random.Range(-3f, 3f));
-            GameObject cell = Instantiate(cellPrefab, spawnPos, Quaternion.identity);
-            CellController ctrl = cell.GetComponent<CellController>();
-            ctrl.manager = this;
-            ctrl.memory = memory;
-            activeCells.Add(cell);
+            Vector2 pos = new Vector2(Random.Range(-7f, 7f), Random.Range(-3f, 3f));
+            GameObject cellObj = Instantiate(cellPrefab, pos, Quaternion.identity);
+            CellController cell = cellObj.GetComponent<CellController>();
+
+            cell.genome = evolutionManager.population[i];
+            cell.evolutionManager = evolutionManager;
+
+            activeCells.Add(cellObj);
         }
     }
 
     void EndRound()
     {
-        foreach (GameObject cell in activeCells)
+        foreach (var cellObj in activeCells)
         {
-            if (cell != null)
+            if (cellObj != null)
             {
-                CellController ctrl = cell.GetComponent<CellController>();
-                ctrl.ReportSurvival(false); // No fueron eliminadas
+                CellController cell = cellObj.GetComponent<CellController>();
+                if (cell != null)
+                    cell.Survived();
             }
         }
+
+        ClearCells();
+    }
+
+    void ClearCells()
+    {
+        foreach (var obj in activeCells)
+            if (obj != null)
+                Destroy(obj);
+
+        activeCells.Clear();
     }
 
     public void AddScore()
     {
         score++;
         scoreText.text = "Puntaje: " + score;
-    }
-
-    public void RegisterMemory(CellData data)
-    {
-        memory.Add(data);
-    }
-
-    void ClearCells()
-    {
-        foreach (GameObject cell in activeCells)
-        {
-            if (cell != null)
-                Destroy(cell);
-        }
-        activeCells.Clear();
     }
 }
