@@ -45,7 +45,6 @@ public class GameManager : MonoBehaviour
     {
         ClearCells();
 
-        score = 0;
         scoreText.text = "Puntaje: " + score;
 
         int spawnCount = Mathf.Min(maxCells, evolutionManager.population.Count);
